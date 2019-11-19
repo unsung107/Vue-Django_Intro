@@ -48,10 +48,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+# view 함수로 들어가기 전 로그인 및 인증여부를 확인해주는 셋팅
 REST_FRAMEWORK = {
+
+    # 로그인 여부를 확인해주는 클래스
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+
+    # 인증 여부를 확인하는 클래스
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',

@@ -54,3 +54,10 @@ CORS_ORIGIN_WHITELIST = [
 
 # CORS_ORIGIN_ALLOW_ALL = True 어디에서든(오픈  api) 접근가능
 ```
+
+
+
+front에서 설치
+```bash
+$ npm install vue-session
+```

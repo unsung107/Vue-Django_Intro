@@ -55,6 +55,9 @@ export default {
 
           this.$session.set('jwt', response.data.token)
 
+          // vuex store 를 this.$store로 접근가능
+          this.$store.dispatch('login', response.data.token)
+
           console.log(response)
           this.loading = false
 

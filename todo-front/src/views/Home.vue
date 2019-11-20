@@ -8,7 +8,8 @@
 
 <script>
 import axios from 'axios'
-import jwtDecode from 'jwt-decode' // jwt를 해석해보여주는 라이브러리
+// import jwtDecode from 'jwt-decode' // jwt를 해석해보여주는 라이브러리
+import { mapGetters } from 'vuex' // import vuex from 'vuex' ; vuex.mapGetters
 import router from '@/router'
 import TodoList from '@/components/TodoList'
 import TodoInput from '@/components/TodoInput'
@@ -21,6 +22,13 @@ export default {
       todos: []
     }
   },
+  computed: {
+    ...mapGetters([
+      'isLoggedIn',
+      'options',
+      'userId'
+    ])
+  },
   components: {
     TodoList,
     TodoInput,
@@ -29,29 +37,16 @@ export default {
 
     // 사용자 로그인 유무를 확인하여 로그인 되어 있지 않을 시 로그인 페이지로 보내겠다.
     checkLoggedIn() {
-      // 1. 세션을 시작해서 
-      this.$session.start()
-
-      // 2. 'jwt'가 있는지 확인
-      if (!this.$session.has('jwt')) {
+      if (!this.isLoggedIn) {
         // 로그인 페이지로 보내겠다.
         router.push('/login')
       }
     },
 
     getTodo() {
-      this.$session.start()
-      const token = this.$session.get('jwt')
-      const userId = jwtDecode(token).user_id
-
       const SERVER_IP = process.env.VUE_APP_SERVER_IP
 
-      const options = {
-        headers: {
-          Authorization: 'JWT ' + token
-        }
-      }
-      axios.get(SERVER_IP + `/api/v1/users/${userId}/`, options)
+      axios.get(SERVER_IP + `/api/v1/users/${this.userId}/`, this.options)
       .then(response => {
         this.todos = response.data.todo_set
       })
@@ -62,23 +57,15 @@ export default {
     },
 
     createTodo(title) {
-      this.$session.start()
-      const token = this.$session.get('jwt')
       const SERVER_IP = process.env.VUE_APP_SERVER_IP
-      const options = {
-        headers: {
-          Authorization: 'JWT ' + token
-        }
-      }
-      const userId = jwtDecode(token).user_id
       const data = {
         title,
-        user: userId
+        user: this.userId
       }
 
-      axios.post(`${SERVER_IP}/api/v1/todos/`, data, options)
+      axios.post(`${SERVER_IP}/api/v1/todos/`, data, this.options)
       .then(response => {
-        console.log(response.data)
+        this.todos.push(response.data)
       })
       .catch(error=>{
         console.error(error)
@@ -91,6 +78,12 @@ export default {
   mounted() {
     this.checkLoggedIn()
     this.getTodo()
+  },
+
+  watch: {
+    isLoggedIn() {
+      this.getTodo()
+    }
   }
 
 }
